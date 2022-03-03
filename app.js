@@ -173,6 +173,36 @@ class UI {
       //Now _this_ points to the class and calls clearCart() below
       this.clearCart();
     });
+
+    cartContent.addEventListener("click", (event) => {
+      if (event.target.classList.contains("remove-item")) {
+        let removeItem = event.target;
+        let itemId = removeItem.dataset.id; //uses the data-id attribute in html
+        cartContent.removeChild(removeItem.parentElement.parentElement);
+        this.removeItem(itemId); //remove item from cart
+      } else if (event.target.classList.contains("fa-chevron-up")) {
+        let addAmount = event.target;
+        let itemId = addAmount.dataset.id;
+        let tempItem = cart.find((item) => item.id === itemId);
+        tempItem.amount += 1;
+        Storage.saveCart(cart);
+        this.setCartValues(cart);
+        addAmount.nextElementSibling.innerText = tempItem.amount;
+      } else if (event.target.classList.contains("fa-chevron-down")) {
+        let lowerAmount = event.target;
+        let itemId = lowerAmount.dataset.id;
+        let tempItem = cart.find((item) => item.id === itemId);
+        tempItem.amount -= 1;
+        if (tempItem.amount > 0) {
+          Storage.saveCart(cart);
+          this.setCartValues(cart);
+          lowerAmount.previousElementSibling.innerText = tempItem.amount;
+        } else {
+          cartContent.removeChild(lowerAmount.parentElement.parentElement);
+          this.removeItem(itemId);
+        }
+      }
+    });
   }
   clearCart() {
     let cartItemIds = cart.map((item) => item.id);
