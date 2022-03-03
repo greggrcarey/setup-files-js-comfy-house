@@ -66,7 +66,8 @@ class UI {
 
     productsDOM.innerHTML = result;
   }
-
+  //Gets the html buttons to add items to cart
+  //and handles adding items to cart. Should probably refactor
   getBagButtons() {
     const btns = [...document.querySelectorAll(".bag-btn")];
     console.log(btns);
@@ -94,16 +95,12 @@ class UI {
         cart = [...cart, cartItem];
         console.log(`cart: `, cart);
 
-        //save cart in local storage
         Storage.saveCart(cart);
 
-        //set cart values
         this.setCartValues(cart);
 
         //display cart values
         this.addCartItem(cartItem);
-
-        //show the cart
 
         this.showCart();
       });
@@ -149,6 +146,23 @@ class UI {
     cartOverlay.classList.add("transparentBcg");
     cartDOM.classList.add("showCart");
   }
+
+  hideCart() {
+    cartOverlay.classList.remove("transparentBcg");
+    cartDOM.classList.remove("showCart");
+  }
+
+  setUpApp() {
+    cart = Storage.getCart();
+    this.setCartValues(cart);
+    this.populateCart(cart);
+    cartBtn.addEventListener("click", this.showCart);
+    closeCartBtn.addEventListener("click", this.hideCart);
+  }
+
+  populateCart(cart) {
+    cart.forEach((item) => this.addCartItem(item));
+  }
 }
 
 //local storage
@@ -165,13 +179,20 @@ class Storage {
   static saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
   }
+
+  static getCart() {
+    return localStorage.getItem("cart")
+      ? JSON.parse(localStorage.getItem("cart"))
+      : [];
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const ui = new UI();
   const products = new Products();
 
-  //get all products
+  ui.setUpApp();
+
   products
     .getProducts()
     .then((products) => {
@@ -179,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
       Storage.saveProducts(products);
     })
     .then(() => {
-      //Get the buttons after they have been loaded to the DOM
+      //Get the buttons for manipulation after they have been loaded to the DOM
       ui.getBagButtons();
     });
 });
