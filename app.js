@@ -45,7 +45,7 @@ class Products {
 class UI {
   displayProducts(products) {
     let result = "";
-    console.log(`displayProducts:`, products);
+    //console.log(`displayProducts:`, products);
     products.forEach((product) => {
       result += `
             <!--single product-->
@@ -54,13 +54,13 @@ class UI {
                     <img src="${product.image}" alt="${product.title}-image" class="product-img">
                     <button class="bag-btn" data-id="${product.id}">
                         <i class="fas fa-shopping-cart"></i>
-                        add to bag
+                        add to cart
                     </button>
                 </div>
                 <h3>${product.title}</h3>
                 <h4>$${product.price}</h4>
             </article>
-            <!--send single product-->
+            <!--end single product-->
             `;
     });
 
@@ -163,6 +163,39 @@ class UI {
   populateCart(cart) {
     cart.forEach((item) => this.addCartItem(item));
   }
+
+  cartLogic() {
+    /*This syntax only references the button html  
+    clearCartBtn.addEventListener("click", this.clearCart);
+    */
+
+    clearCartBtn.addEventListener("click", () => {
+      //Now _this_ points to the class and calls clearCart() below
+      this.clearCart();
+    });
+  }
+  clearCart() {
+    let cartItemIds = cart.map((item) => item.id);
+    cartItemIds.forEach((id) => this.removeItem(id));
+    while (cartContent.children.length > 0) {
+      cartContent.removeChild(cartContent.children[0]);
+    }
+    this.hideCart();
+  }
+
+  removeItem(id) {
+    cart = cart.filter((item) => item.id !== id);
+    this.setCartValues(cart);
+    console.log(cart);
+    Storage.saveCart(cart);
+    let button = this.getSingleButton(id);
+    button.disabled = false;
+    button.innerHTML = `<i class="fas fa-shopping-cart"></i>add to cart`;
+  }
+
+  getSingleButton(id) {
+    return buttonsDOM.find((button) => button.dataset.id === id);
+  }
 }
 
 //local storage
@@ -202,5 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(() => {
       //Get the buttons for manipulation after they have been loaded to the DOM
       ui.getBagButtons();
+      ui.cartLogic();
     });
 });
