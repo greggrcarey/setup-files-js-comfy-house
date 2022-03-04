@@ -174,6 +174,11 @@ class UI {
       this.clearCart();
     });
 
+    /*
+    Event bubbling. Since the html these events are tied to do not exist on the page,
+    this event listens to the cart content from the selector and searches the target for the appropriate class
+    to action on. 
+    */
     cartContent.addEventListener("click", (event) => {
       if (event.target.classList.contains("remove-item")) {
         let removeItem = event.target;
